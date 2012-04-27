@@ -11,7 +11,7 @@ AS = $(CROSS_COMPILE)as
 LD = $(CROSS_COMPILE)ld
 
 all:
-	@$(AS)	start.S
+	@$(CC)	start.S -o start
 
 
 .PHONY: clean
