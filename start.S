@@ -24,7 +24,7 @@ _start:
 	ldr pc, _software_interrupt
 	ldr pc, _prefetch_instruction_abort
 	ldr pc, _prefetch_data_abort
-	b	.
+	ldr pc, _unused
 	ldr pc, _extern_irq
 	ldr pc, _fast_irq
 
@@ -36,10 +36,22 @@ _prefetch_instruction_abort:
 	.word __prefetch_instruction_abort
 _prefetch_data_abort:
 	.word __prefetch_data_abort
+_unused:
+	.word __unused
 _extern_irq:
 	.word __extern_irq
 _fast_irq:
 	.word __fast_irq
+
+	.balignl 16,0xdeadbeef
+
+/*
+ *************************************************************************
+ *
+ * Begin Boot Code
+ *
+ *************************************************************************
+ */
 
 _reset:
 
@@ -54,6 +66,8 @@ __software_interrupt:
 __prefetch_instruction_abort:
 	b .
 __prefetch_data_abort:
+	b .
+__unused:
 	b .
 __extern_irq:
 	b .
