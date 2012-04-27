@@ -1,0 +1,337 @@
+44b0中断深入详解
+2009-09-03 12:17
+
+from:http://blog.ixpub.net/viewthread-934020
+
+一、44B0中断系统
+
+   44B0 中断系统中有两张中断转移表，经过二重转移才跳到中断处理程序。第一张中断向量表由硬件决定，所在区域为ROM（flash），地址空间从0X00开始，其中0X00-0X1C为异常向量入口地址，0X20-0XC0为中断向量入口地址。另一张中断向量表在RAM 中，可以随便改，其位置在程序连接后才定。由于 RAM 放在地址空间的高端（距离中断向量超过了 32M），为了从第一张中断向量表跳到第二张中断向量表，故在第一张中断向量表对应位置上写上 ldr PC,# interrupt_service 如：ldr PC,=HandlerEINT4567。
+
+1、 一级中断向量表
+
+（以下为汇编代码片断，详见44B0数据手册11章——中断控制器）
+
+AREA     Init,CODE,READONLY
+;说明：关键字ENTRY告诉编译器保留这段代码；从代码看Init段就是要写入0x00地址的原始中断向量，因此把这个文件编译生成的44binit.O和Init填入ADS-Linker-Layout页对应项中。【这样编译器会把该段代码编译到0X0地址。】
+
+
+ENTRY           ;ENTRY程序入口标号需要顶格式写，否则出错。
+
+    b ResetHandler    ;复位异常 0x0000 0000
+    b HandlerUndef    ;未定义异常 0x0000 0004
+    b HandlerSWI       ;软件中断异常 0x0000 0008
+    b HandlerPabort    ;指令预取异常 0x0000 000C
+    b HandlerDabort    ;数据预取异常 0x0000 0010
+    b .          ;保留 0x0000 0014
+    b HandlerIRQ    ;外部中断 外设中断都是在这里扩展的 0x0000 0018
+    b HandlerFIQ    ;快速中断 0x0000 001C
+;***IMPORTANT NOTE***
+;If the H/W vectored interrutp mode is enabled, The above two instructions should
+;be changed like below, to work-around with H/W bug of S3C44B0X interrupt controller.
+; b HandlerIRQ -> subs pc,lr,#4
+; b HandlerIRQ -> subs pc,lr,#4
+;说明：原文注明当使用向量中断模式时，需用subs pc,lr,#4来代替前面的语句。这是原来S3C44B0X硬件中的一个BUG，后期推出的S3C44B0X已经解决此BUG，但是为了兼容早期的版本，用subs pc,lr,#4替换后也可以正常工作，相当于现在的硬件中两条语句都可以兼容，后期的器件手册中已经注明可以直接采用b HandlerIRQ的方式
+
+VECTOR_BRANCH
+    ldr pc,=HandlerEINT0     ;mGA     H/W interrupt vector table 0x0000 0020
+    ldr pc,=HandlerEINT1     ;
+    ldr pc,=HandlerEINT2     ;
+    ……
+
+……
+
+    b .
+    ldr pc,=HandlerADC     ;mGKB    0x0000 00C0
+    b .    ;
+    b .    ;
+    b .    ;
+    b .    ;
+    b .    ;mGKB
+    b .
+    b .
+;0xe0=EnterPWDN
+    ldr pc,=EnterPWDN
+
+    LTORG
+
+通过这段代码,就在44B0的ROM中以0x00为起始地址的地方建立起了一张中断向量表，而且这个表的顺序完全符合44B0数据手册中对中断向量地址的定义要求。
+
+2、 二级中断向量表
+
+    ^ _ISR_STARTADDRESS ；一般为   #define _ISR_STARTADDRESS 0xc7fff00
+
+HandleReset     # 4
+
+HandleUndef     # 4
+
+HandleSWI    # 4
+
+HandlePabort        # 4
+
+HandleDabort        # 4
+
+HandleReserved   # 4
+
+HandleIRQ    # 4
+
+HandleFIQ    # 4
+
+
+
+;Do not use the label 'IntVectorTable',
+
+;because armasm.exe can not recognize this label correctly.
+
+;the value is different with an address you think it may be.
+
+;IntVectorTable
+
+HandleADC    # 4
+
+HandleRTC    # 4
+
+HandleUTXD1     # 4
+
+HandleUTXD0     # 4
+
+……
+
+……
+
+HandleEINT2     # 4
+
+HandleEINT1     # 4
+
+HandleEINT0     # 4 ;0xc1(c7)fff84
+
+       END
+
+这段第一行 “^” 符号表示在RAM区开辟空间。　^   _ISR_STARTADDRESS 表示在RAM的_ISR_STARTADDRESS处开辟一段空间。这里开辟的空间是用来存放中断服务程序及其他异常处理程序地址的。每个中断或其他异常都开辟4个字节的空间，这是因为RAM区的程序地址要4个字节才能放得下。而中断程序的地址是应用程序在使用这个中断时，将中断服务程序的地址存入这对应的空间内。
+
+3、 中断向量表最终指向
+
+一般在44B.H等头文件能找到对应于二级中断向量表的宏定义：片断如下
+
+#define pISR_RESET   (*(unsigned *)(_ISR_STARTADDRESS+0x0))
+
+#define pISR_UNDEF   (*(unsigned *)(_ISR_STARTADDRESS+0x4))
+
+#define pISR_SWI (*(unsigned *)(_ISR_STARTADDRESS+0x8))
+
+#define pISR_PABORT (*(unsigned *)(_ISR_STARTADDRESS+0xc))
+
+#define pISR_DABORT (*(unsigned *)(_ISR_STARTADDRESS+0x10))
+
+#define pISR_RESERVED (*(unsigned *)(_ISR_STARTADDRESS+0x14))
+
+#define pISR_IRQ (*(unsigned *)(_ISR_STARTADDRESS+0x18))
+
+#define pISR_FIQ (*(unsigned *)(_ISR_STARTADDRESS+0x1c))
+
+
+
+#define pISR_ADC (*(unsigned *)(_ISR_STARTADDRESS+0x20))
+
+#define pISR_RTC (*(unsigned *)(_ISR_STARTADDRESS+0x24))
+
+#define pISR_UTXD1   (*(unsigned *)(_ISR_STARTADDRESS+0x28))
+
+#define pISR_UTXD0   (*(unsigned *)(_ISR_STARTADDRESS+0x2c))
+
+……
+
+……
+
+#define pISR_EINT2   (*(unsigned *)(_ISR_STARTADDRESS+0x7c))
+
+#define pISR_EINT1   (*(unsigned *)(_ISR_STARTADDRESS+0x80))
+
+#define pISR_EINT0   (*(unsigned *)(_ISR_STARTADDRESS+0x84))
+
+一般在C文件中将自定义的中断服务子程序地址放进对应宏中，如：
+
+pISR_TIMER0 = (int) time_interrupt()
+
+
+
+二、44B0向量（仅IRQ模式）与非向量中断处理
+
+一旦产生IRQ中断，微控制器会切换到IRQ模式，并且跳转到向量表0x0000018地址处执行程序。而一旦产生FIQ中断，微控制器会切换到FIQ模式，并且跳转到向量表0x000001C地址处执行程序。所示，在0x00000080处和0x0000001C处必须各有一条跳转指令，分别跳转的IRQ和FIQ中断处理的代码处。
+
+1、向量中断和非向量中断模式的概念与区别
+
+（1）向量中断模式是当CPU读取位于0x18处的IRQ中断指令的时候，当 ARM7TDMI 从 0X00000018 地址处取指令时，中断控制器会在数据总线上加载分支指令（取代0x18处的指令）。这些分支指令使程序计数器能够对应到每一个中断源的向量地址。例如 ADC 中断的向量地址为0xC0(会自动跳转到0xC0，而不会到0x18),然后则执行在0xC0处放如下代码：ldr PC,=HandlerADC 当ADC中断产生的时候系统会自动跳转到HandlerADC函数中处理中断。
+
+这些跳转到每一个中断源向量地址的分支指令可以由中断控制器产生，为此，中断控制器产生的机器码为 0xEA000000.在各个中断源对应的中断向量地址中，存放着跳转到相应中断服务程序的程序代码。在相应向量地址处，分支指令的机器代码公式如下：(不太明白此公式，望高手指点。^_^)
+
+向量中断模式的指令机器代码=0xEA000000+[(<目标地址>-<向量地址>-0x8)>>2]
+
+例如，如果定时器 0 中断采用向量中断模式，那么跳转到相应中断服务程序的分支指令应该存放在向量地址 0x00000060 处。中断服务程序的起始地址在 0x10000。下面就是计算出来放在 0x60 处的机器代码： (machine code @0x00000060)
+
+0xEA0000000+[(0x10000-0x60-0x80)>>2]=0Xea000000+0X3FE6=0Xea003FE6
+
+通常机器代码都是反汇编后自动产生的，因此不必真正如上述计算。
+
+（2）非向量中断模式处理方式是一种传统的中断处理方法，当系统产生中断的时候，系统将INTPND寄存器中对应标志位置位，然后跳转到位于 0x18处的统一中断函数中；该函数通过读取INTPND寄存器中对应标志位来判断中断源，并根据优先级关系再跳到对应中断源的处理代码中处理中断。
+
+2、向量中断和非向量中断模式的详细源码分析
+
+（1）向量中断
+
+在1中讲到当发生IRQ中断时，中断控制器会在数据总线上加载分支指令跳到相应中断源的向量地址，即一级中断向量表中对应的中断向量入口地址。
+
+ldr pc,=HandlerEINT0 ; 0x20
+
+ldr pc,=HandlerEINT1
+
+……
+
+ldr pc,=HandlerTIMER0 ; 0x60
+
+ldr pc,=HandlerTIMER1
+
+……
+
+ldr pc,=HandlerADC    ; 0xb4
+
+……
+
+由上述代码可知，程序会跳转到HandlerXXX中，定义如下：
+
+HandlerFIQ   HANDLER HandleFIQ
+
+HandlerIRQ   HANDLER HandleIRQ
+
+HandlerUndef     HANDLER HandleUndef
+
+HandlerSWI HANDLER HandleSWI
+
+HandlerDabort HANDLER HandleDabort
+
+HandlerPabort HANDLER HandlePabort
+
+
+
+HandlerADC HANDLER HandleADC
+
+HandlerRTC   HANDLER HandleRTC
+
+……
+
+HandlerEINT1     HANDLER HandleEINT1
+
+HandlerEINT0     HANDLER HandleEINT0
+
+
+
+HandlerXXX HANDLER HandleXXX为一个汇编宏，定义如下：
+
+MACRO
+
+$HandlerLabel HANDLER $HandleLabel
+
+$HandlerLabel
+
+                               ;由于ADS仅支持FD（满递减）型堆栈
+
+    sub     sp,sp,#4       ;将堆栈退一个字用于保存下面用到的R0
+
+    stmfd sp!,{r0}       ;将R0压入堆栈
+
+    ldr     r0,=$HandleLabel ;将HandleLabel的地址赋给R0
+
+    ldr     r0,[r0]          ;将HandleLabel的地址指向的内容(实际的执行地址)赋给R0
+
+    str     r0,[sp,#4]       ;将对应的中断函数首地址入栈保护
+
+    ldmfd sp!,{r0,pc}    ;将中断函数的首地址出栈，放入PC中，系统将跳转到对应中断处理函数
+
+    MEND
+
+由上宏定义可知，程序又跳到HandleXXX中执行，即二级中断向量表中的地址。为此综上所述，便可跳到对应的中断服务子程序地址，执行中断！
+
+（2）非向量中断
+
+前面讲过，一旦产生IRQ中断，微控制器会切换到IRQ模式，并且跳转到一级向量表0x0000018地址处执行程序；而FIQ则跳到0x000001C地址处。即
+
+ENTRY         
+
+b ResetHandler    ;复位异常 0x0000 0000
+    ……
+    b HandlerIRQ    ;外部中断 0x0000 0018
+    b HandlerFIQ    ;快速中断 0x0000 001C
+……
+
+然后跳转到宏HandlerIRQ HANDLER   HandleIRQ 或 HandlerFIQ   HANDLER HandleFIQ。
+
+由以下代码可知，HandleIRQ最终对应的是IsrIRQ地址标号。
+
+;****************************************************
+
+;* Setup IRQ handler                            *
+
+;****************************************************
+
+ldr    r0,=HandleIRQ        ;This routine is needed
+
+ldr    r1,=IsrIRQ           ;if there is not 'subs pc,lr,#4' at 0x18, 0x1c
+
+str    r1,[r0]
+
+上述代码位于ResetHandler为标号的汇编代码段内，板子上电或复位后，都要从位于0x0执行b ResetHandler 的指令跳转到ResetHandler为标号的汇编代码段处执行，也就将HandleIRQ初始化为IsrIRQ。IsrIRQ代码段如下：
+
+IsrIRQ   ;using I_ISPR register.
+
+sub    sp,sp,#4    ;reserved for PC
+
+stmfd sp!,{r8-r9}  
+
+
+
+;IMPORTANT CAUTION
+
+;if I_ISPC is not used properly, I_ISPR can be 0 in this routine.
+
+ldr    r9,=I_ISPR
+
+ldr    r9,[r9]
+
+cmp     r9, #0x0 ;If the IDLE mode work-around is used, r9 may be 0 sometimes.
+
+beq     %F2 ;相等就向后搜索跳转标号2.
+
+mov    r8,#0x0
+
+0
+
+movs r9,r9,lsr #1
+
+bcs    %F1   ;>= 就向后搜索跳转标号1.
+
+add    r8,r8,#4
+
+b        %B0   ;向前搜索跳转标号0.
+
+1
+
+ldr    r9,=HandleADC
+
+add    r9,r9,r8   ;以HandleADC（r9）为基址，r8对应所发生中断源的偏移量
+
+ldr    r9,[r9] ;结果为二级中断向量表中对应中断标号地址HandleXXX
+
+str    r9,[sp,#8]
+
+ldmfd sp!,{r8-r9,pc}
+
+2
+
+ldmfd sp!,{r8-r9}
+
+add     sp,sp,#4
+
+subs pc,lr,#4
+
+上述这段程序就是用来处理非向量中断（比向量中断方式多执行的代码段），具体判断I_ISPR中各位是否置1 置1表示目前此中断等待响应（每次只能有一位置1），从最高优先级中断位开始判断，检测到等待服务，中断就将pc置为中断服务函数首地址。这段代码就是向量中断和非向量中断区别的根本所在，向量中断利用硬件计算，直接通过一级中断向量表中0X20-0XC0中断向量入口地址跳转到二级中断向量表中对应的HandleXXX地址，省掉了这段代码的操作。
+
+而对于FIQ中断，HandleFIQ没有明确定义的跳转地址，也是本人迷惑的地方。在网上找了很多资料，都没有说到。有帖的回复说没有实现，也有说在uclinux的fiq.c文件中定义实现，不得而知。由于这两三天都在找关于44b0中断的资料，花了很多时间，而且还有任务在身，此问题暂且搁下，希望高手指点。
