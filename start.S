@@ -15,6 +15,8 @@
  *	b _fast_irq						;fast interrupt : 0x0000001C
  */
 
+#define WATCH_DOG_CON 0x53000000
+
 
 	.text
 .global _start
@@ -54,7 +56,7 @@ _fast_irq:
  */
 
 _reset:
-/*	
+/*
  *	CPSR bit map
  *	31   30   29   28   27   26   25   24  …  8   7   6   5   4   3   2   1   0
  *	N    Z    C    V    .    .    .    .   …  .   I   F   T   M4  M3  M2  M1  M0
@@ -77,10 +79,7 @@ _reset:
 	mov r0, #0xd3	/* 0b110 10011 */
 	msr cpsr, r0	/* In supervisor mode, disabling IRQ and FIQ, running at arm state */
 
-/*
- *	Disables watchdog
- */
-	ldr r0, =0x53000000
+	ldr r0, =WATCH_DOG_CON	/* Disables watchdog */
 	mov r1, #0x0
 	str r1, [r0]
 
