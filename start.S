@@ -15,7 +15,8 @@
  *	b _fast_irq						;fast interrupt : 0x0000001C
  */
 
-#define WATCH_DOG_CON 0x53000000
+#define WATCH_DOG_CON 0x53000000	/* Watchdog timer control register */
+#define INTMSK		  0x4A000008	/* Interupt-Controller base addresses */
 
 
 	.text
@@ -93,6 +94,10 @@ _reset:
 	ldr r0, =WATCH_DOG_CON	/* Disables watchdog */
 	mov r1, #0x0
 	str r1, [r0]
+
+	mov	r1, #0xffffffff	/* mask all IRQs by setting all bits in the INTMSK */
+	ldr	r0, =INTMSK
+	str	r1, [r0]
 
 
 
