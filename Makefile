@@ -8,25 +8,30 @@ CROSS_COMPILE	?= arm-linux-
 CC = $(CROSS_COMPILE)gcc
 AS = $(CROSS_COMPILE)as
 LD = $(CROSS_COMPILE)ld
+OBJCOPY = $(CROSS_COMPILE)objcopy
 
-FINAL_BIN = lboot.bin
+LBOOT_BIN = lboot.bin
+LBOOT_ELF = lboot.elf
 LBOOT_LDS = lboot.lds
 
 SOURCE = start.S
 
-OUT_BIN = start.o
+OBJS = start.o
 
-all: $(FINAL_BIN)
-	@echo  "Outputing $(FINAL_BIN) ..."
+all: $(LBOOT_BIN)
+	@echo  "Outputing $(LBOOT_BIN) ..."
 
-$(FINAL_BIN): $(OUT_BIN)
+$(LBOOT_BIN): $(LBOOT_ELF)
+	@$(OBJCOPY) -I elf32-littlearm -O binary $^ $@
+
+$(LBOOT_ELF): $(OBJS)
 	@$(LD)	$^ -o $@ -T$(LBOOT_LDS)
 
-$(OUT_BIN):
+$(OBJS):
 	@$(CC)  -o $@ -c $(SOURCE)
 
 
 .PHONY: clean
 clean:
-	@rm -f *.out $(FINAL_BIN) $(OUT_BIN)
+	@rm -f *.out $(LBOOT_BIN) $(LBOOT_ELF) $(OBJS)
 	

@@ -1,3 +1,6 @@
 #if you find new output file after compile,please add this/those file here.
 
 *.swp
+*.o
+*.bin
+*.elf
