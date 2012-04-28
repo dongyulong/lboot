@@ -57,6 +57,14 @@ _fast_irq:
 
 _reset:
 /*
+ * User (usr): The normal ARM program execution state
+ * FIQ (fiq): Designed to support a data transfer or channel process
+ * IRQ (irq): Used for general-purpose interrupt handling
+ * Supervisor (svc): Protected mode for the operating system
+ * Abort mode (abt): Entered after a data or instruction prefetch abort
+ * System (sys): A privileged user mode for the operating system
+ * Undefined (und): Entered when an undefined instruction is executed
+ *
  *	CPSR bit map
  *	31   30   29   28   27   26   25   24  …  8   7   6   5   4   3   2   1   0
  *	N    Z    C    V    .    .    .    .   …  .   I   F   T   M4  M3  M2  M1  M0
@@ -73,7 +81,10 @@ _reset:
  *	I	Meaning disable external(hardware) interrupt(bit I=1)
  *	F	Meaning disable fast interrupt(bit F=1)
  *	T	Meaning running int Thumb (bit T=1) state or in Arm(bit T=0) state
- *
+ *	N	Negative/Less Than
+ *	Z	Zero
+ *	C	Carry/Borrow/Extend
+ *	V	Overflow
  */
 
 	mov r0, #0xd3	/* 0b110 10011 */
