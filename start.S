@@ -10,7 +10,7 @@
  *	b _software_interrupt			;software interrupt : 0x00000008
  *	b _prefetch_instruction_abort   ;prefetch instruction exception abort : 0x0000000C
  *	b _prefetch_data_abort			;prefetch data exception abort : 0x00000010
- *	b .								;reserved : 0x00000014
+ *	b _unused						;reserved : 0x00000014
  *	b _extern_irq					;external interrupt : 0x00000018
  *	b _fast_irq						;fast interrupt : 0x0000001C
  */
@@ -54,6 +54,38 @@ _fast_irq:
  */
 
 _reset:
+/*	
+ *	CPSR bit map
+ *	31   30   29   28   27   26   25   24  …  8   7   6   5   4   3   2   1   0
+ *	N    Z    C    V    .    .    .    .   …  .   I   F   T   M4  M3  M2  M1  M0
+ *	
+ *	M[4: 0]			ARM CPU's running mode		The registers can be accessed
+ *	0b10000			User mode					PC，CPSR,R0-R14
+ *	0b10001			FIQ mode					PC，CPSR, SPSR_fiq，R14_fiq-R8_fiq, R7～R0
+ *	0b10010			IRQ mode					PC，CPSR, SPSR_irq，R14_irq,R13_irq,R12～R0
+ *	0b10011			Supervisor mode				PC，CPSR, SPSR_svc，R14_svc,R13_svc,,R12～R0,
+ *	0b10111			Abort mode					PC，CPSR, SPSR_abt，R14_abt,R13_abt, R12～R0,
+ *	0b11011			Undefined mode				PC，CPSR, SPSR_und，R14_und,R13_und, R12～R0,
+ *	0b11111			System mode					PC，CPSR（ARM v4 and later）, R14～R0
+ *
+ *	I	Meaning disable external(hardware) interrupt(bit I=1)
+ *	F	Meaning disable fast interrupt(bit F=1)
+ *	T	Meaning running int Thumb (bit T=1) state or in Arm(bit T=0) state
+ *
+ */
+
+	mov r0, #0xd3	/* 0b110 10011 */
+	msr cpsr, r0	/* In supervisor mode, disabling IRQ and FIQ, running at arm state */
+
+/*
+ *	Disables watchdog
+ */
+	ldr r0, =0x53000000
+	mov r1, #0x0
+	str r1, [r0]
+
+
+
 
 
 
