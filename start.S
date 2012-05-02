@@ -88,7 +88,9 @@ _reset:
  *	V	Overflow
  */
 
-	mov r0, #0xd3	/* 0b110 10011 */
+	mrs	r0,cpsr		/* Read cpsr value to r0 */
+	bic	r0,r0,#0x1f /* Clear M0~M4 */
+	orr	r0,r0,#0xd3	/* 0b110 10011 */
 	msr cpsr, r0	/* In supervisor mode, disabling IRQ and FIQ, running at arm state */
 
 	ldr r0, =WATCH_DOG_CON	/* Disables watchdog */
