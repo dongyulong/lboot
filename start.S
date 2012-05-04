@@ -15,6 +15,7 @@
  *	b _fast_irq						;fast interrupt : 0x0000001C
  */
 
+#include "reg.h"
 
 
 	.text
@@ -101,6 +102,7 @@ _reset:
 	ldr	r0, =INTMSK
 	str	r1, [r0]
 
+	bl led_on /* light led refer Documents/led.txt */
 
 
 

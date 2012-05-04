@@ -9,6 +9,7 @@ SECTIONS
 	.text :
 	{
 		start.o	(.text)
+		led.o (.text)
 		*(.text)
 	}
 

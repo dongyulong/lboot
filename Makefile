@@ -14,9 +14,10 @@ LBOOT_BIN = lboot.bin
 LBOOT_ELF = lboot.elf
 LBOOT_LDS = lboot.lds
 
-SOURCE = start.S
+SOURCE = start.S led.S
+HEADER = reg.h
 
-OBJS = start.o
+OBJS = start.o led.o
 
 all: $(LBOOT_BIN)
 	@echo  "Outputing $(LBOOT_BIN) ..."
@@ -28,7 +29,7 @@ $(LBOOT_ELF): $(OBJS)
 	@$(LD)	$^ -o $@ -T$(LBOOT_LDS)
 
 $(OBJS):
-	@$(CC)  -o $@ -c $(SOURCE)
+	@$(CC) -c $(SOURCE) $(HEADER)
 
 
 .PHONY: clean
