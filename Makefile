@@ -19,7 +19,9 @@ SOURCE = start.S led.S
 OBJS = start.o led.o
 
 all: $(LBOOT_BIN)
+	$(shell cp $^ oflash)
 	@echo  "Outputing $(LBOOT_BIN) ..."
+	@echo  "Please use ./tool/script/oflash.sh to flash image"
 
 $(LBOOT_BIN): $(LBOOT_ELF)
 	@$(OBJCOPY) -I elf32-littlearm -O binary $^ $@
@@ -33,5 +35,5 @@ $(LBOOT_ELF): $(OBJS)
 
 .PHONY: clean
 clean:
-	@rm -f *.out $(LBOOT_BIN) $(LBOOT_ELF) $(OBJS)
+	@rm -f *.out $(LBOOT_BIN) $(LBOOT_ELF) $(OBJS) oflash/lboot.bin
 	
