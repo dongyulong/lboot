@@ -8,7 +8,7 @@
 .global led_on
 led_on:
 	ldr	r0, =GPBCON
-	mov	r1, #0x000154
+	mov	r1, #0x15400
 	str	r1, [r0]
 
 	ldr	r0, =GPBDAT
