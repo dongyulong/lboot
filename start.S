@@ -15,7 +15,6 @@
  *	b _fast_irq						;fast interrupt : 0x0000001C
  */
 
-#include "reg.h"
 
 
 	.text

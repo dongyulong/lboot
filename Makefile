@@ -15,7 +15,6 @@ LBOOT_ELF = lboot.elf
 LBOOT_LDS = lboot.lds
 
 SOURCE = start.S led.S
-HEADER = reg.h
 
 OBJS = start.o led.o
 
@@ -28,8 +27,8 @@ $(LBOOT_BIN): $(LBOOT_ELF)
 $(LBOOT_ELF): $(OBJS)
 	@$(LD)	$^ -o $@ -T$(LBOOT_LDS)
 
-$(OBJS):
-	@$(CC) -c $(SOURCE) $(HEADER)
+%.o:%.S
+	@$(CC) -c $< $@
 
 
 .PHONY: clean
