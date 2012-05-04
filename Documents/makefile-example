@@ -1,0 +1,378 @@
+
+http://blog.csdn.net/zhoujunyi/article/details/2063331
+
+makefile例子
+2008-01-24 14:56 2680人阅读 评论(3) 收藏 举报
+目的：
+       基本掌握了 make 的用法，能在Linux系统上编程。
+环境：
+       Linux系统，或者有一台Linux服务器，通过终端连接。一句话：有Linux编译环境。
+准备：
+       准备三个文件：file1.c, file2.c, file2.h
+       file1.c:
+              #include <stdio.h>
+              #include "file2.h"
+              int main()
+              {
+                     printf("print file1$$$$$$$$$$$$$$$$$$$$$$$$/n");
+                     File2Print();
+                     return 0;
+              }
+
+       file2.h:
+
+              #ifndef FILE2_H_
+              #define    FILE2_H_
+
+                      #ifdef __cplusplus
+
+                            extern "C" {
+
+                     #endif
+
+                     void File2Print();
+
+                     #ifdef __cplusplus
+
+                            }
+
+                     #endif
+
+              #endif
+
+
+       file2.c:
+              #include "file2.h"
+              void File2Print()
+              {
+                     printf("Print file2**********************/n");
+              }
+
+基础：
+       先来个例子：
+       有这么个Makefile文件。（文件和Makefile在同一目录）
+       === makefile 开始 ===
+              helloworld:file1.o file2.o
+                     gcc file1.o file2.o -o helloworld
+
+              file1.o:file1.c file2.h
+                     gcc -c file1.c -o file1.o
+
+               file2.o:file2.c file2.h
+
+                     gcc -c file2.c -o file2.o
+
+
+              clean:
+
+                     rm -rf *.o helloworld
+
+       === makefile 结束 ===
+
+一个 makefile 主要含有一系列的规则，如下：
+A: B
+(tab)<command>
+(tab)<command>
+
+每个命令行前都必须有tab符号。 
+
+上面的makefile文件目的就是要编译一个helloworld的可执行文件。让我们一句一句来解释：
+
+       helloworld : file1.o file2.o：		helloworld依赖file1.o file2.o两个目标文件。
+
+       gcc File1.o File2.o -o helloworld：	编译出helloworld可执行文件。-o表示你指定 的目标文件名。      
+
+       file1.o : file1.c：			file1.o依赖file1.c文件。
+
+       gcc -c file1.c -o file1.o： 		编译出file1.o文件。
+
+-c表示gcc只把给它的文件编译成目标文件，用源码文件的文件名命名但把其后缀由“.c”或“.cc”变成“.o”。在这句中，
+可以省略-o file1.o，编译器默认生成file1.o文件，这就是-c的作用。 
+
+              file2.o : file2.c file2.h
+              gcc -c file2.c -o file2.o
+
+这两句和上两句相同。
+
+       clean:
+              rm -rf *.o helloworld
+
+当用户键入make clean命令时，会删除*.o 和helloworld文件。
+
+如果要编译cpp文件，只要把gcc改成g++就行了。
+
+写好Makefile文件，在命令行中直接键入make命令，就会执行Makefile中的内容了。 
+
+到这步我想你能编一个Helloworld程序了。
+
+上一层楼：使用变量
+
+       上面提到一句，如果要编译cpp文件，只要把gcc改成g++就行了。但如果Makefile中有很多gcc，那不就很麻烦了。
+
+       第二个例子：
+
+       === makefile 开始 ===
+              OBJS = file1.o file2.o
+              CC = gcc
+              CFLAGS = -Wall -O -g
+
+              helloworld : $(OBJS)
+                     $(CC) $(OBJS) -o helloworld
+
+              file1.o : file1.c file2.h
+                     $(CC) $(CFLAGS) -c file1.c -o file1.o
+
+              file2.o : file2.c file2.h
+                     $(CC) $(CFLAGS) -c file2.c -o file2.o
+
+              clean:
+
+                     rm -rf *.o helloworld
+=== makefile 结束 ===
+
+这里我们应用到了变量。要设定一个变量，你只要在一行的开始写下这个变量的名字，后面跟一个 = 号，
+后面跟你要设定的这个变量的值。以后你要引用 这个变量，写一个 $ 符号，后面是围在括号里的变量名。
+
+CFLAGS = -Wall -O –g，解释一下。这是配置编译器设置，并把它赋值给CFFLAGS变量。
+
+-Wall：          输出所有的警告信息。
+
+-O：             在编译时进行优化。
+
+-g：             表示编译debug版本。
+
+这样写的Makefile文件比较简单，但很容易就会发现缺点，那就是要列出所有的c文件。
+如果你添加一个c文件，那就需要修改Makefile文件，这在项目开发中还是比较麻烦的。
+
+再上一层楼：使用函数
+
+       学到这里，你也许会说，这就好像编程序吗？有变量，也有函数。其实这就是编程序，只不过用的语言不同而已。
+
+       第三个例子：
+
+       === makefile 开始 ===
+              CC = gcc
+
+              XX = g++
+              CFLAGS = -Wall -O –g
+
+              TARGET = ./helloworld
+
+              %.o: %.c
+
+                     $(CC) $(CFLAGS) -c $< -o $@
+
+              %.o:%.cpp
+
+                     $(XX) $(CFLAGS) -c $< -o $@
+
+ 
+
+              SOURCES = $(wildcard *.c *.cpp)
+              OBJS = $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCES)))
+
+
+              $(TARGET) : $(OBJS)
+                     $(XX) $(OBJS) -o $(TARGET)
+
+                     chmod a+x $(TARGET)
+
+clean:
+
+       rm -rf *.o helloworld
+=== makefile 结束 ===
+
+函数1：wildcard
+
+产生一个所有以 '.c' 结尾的文件的列表。
+SOURCES = $(wildcard *.c *.cpp)表示产生一个所有以 .c，.cpp结尾的文件的列表，然后存入变量 SOURCES 里。
+
+函数2：patsubst
+
+匹配替换，有三个参数。第一个是一个需要匹配的式样，第二个表示用什么来替换它，第三个是一个需要被处理的由空格分隔的列表。
+
+OBJS = $(patsubst %.c,%.o,$(patsubst %.cc,%.o,$(SOURCES)))表示把文件列表中所有的.c,.cpp字符变成.o，
+形成一个新的文件列表，然后存入OBJS变量中。
+
+%.o: %.c
+
+       $(CC) $(CFLAGS) -c $< -o $@
+
+%.o:%.cpp
+
+       $(XX) $(CFLAGS) -c $< -o $@
+
+这几句命令表示把所有的.c,.cpp编译成.o文件。
+这里有三个比较有用的内部变量。$@ 扩展成当前规则的目的文件名，
+$< 扩展成依靠列表中的第一个依靠文件，而 $^ 扩展成整个依靠的列表（除掉了里面所有重复的文件名）。
+
+       chmod a+x $(TARGET)表示把helloworld强制变成可执行文件。
+
+       到这里，我想你已经能够编写一个比较简单也比较通用的Makefile文件了，上面所有的例子都假定所有的文件都在同一个目录下，不包括子目录。
+
+       那么文件不在一个目录可以吗？
+
+       怎么编写Makefile生成静态库？
+
+       你还想更上一层楼吗？
+
+       请听下回分解。
+
+   --------------转---------------------   
+  四、嵌套执行make   
+    在一些大的工程中，我们会把我们不同模块或是不同功能的源文件放在不同的目录中，我们可以在每个目录中都书写一个该目录的Makefile，
+这有利于让我们的Makefile变得更加地简洁，而不至于把所有的东西全部写在一个Makefile中，这样会很难维护我们的Makefile，
+这个技术对于我们模块编译和分段编译有着非常大的好处。   
+    例如，我们有一个子目录叫subdir，这个目录下有个Makefile文件，来指明了这个目录下文件的编译规则。那么我们总控的Makefile可以这样书写：   
+  subsystem:   
+    cd   subdir   &&   $(MAKE)   
+  其等价于：   
+  subsystem:   
+    $(MAKE)   -C   subdir   
+    定义$(MAKE)宏变量的意思是，也许我们的make需要一些参数，所以定义成一个变量比较利于维护。这两个例子的意思都是先进入“subdir”目录，然后执行make命令。   
+    我们把这个Makefile叫做“总控Makefile”，总控Makefile的变量可以传递到下级的Makefile中（如果你显示的声明），但是不会覆盖下层的Makefile中所定义的变量，
+除非指定了“-e”参数。   
+    如果你要传递变量到下级Makefile中，那么你可以使用这样的声明：   
+          export   <variable   ...>   
+    如果你不想让某些变量传递到下级Makefile中，那么你可以这样声明：     
+          unexport   <variable   ...>   
+  如：   
+          示例一：   
+                  export   variable   =   value   
+                  其等价于：   
+                  variable   =   value   
+                  export   variable   
+                  其等价于：   
+                  export   variable   :=   value   
+                  其等价于：   
+                  variable   :=   value   
+                  export   variable   
+          示例二：   
+                  export   variable   +=   value   
+                  其等价于：   
+                  variable   +=   value   
+                  export   variable   
+    
+    如果你要传递所有的变量，那么，只要一个export就行了。后面什么也不用跟，表示传递所有的变量。   
+    需要注意的是，有两个变量，一个是SHELL，一个是MAKEFLAGS，这两个变量不管你是否export，其总是要传递到下层Makefile中，特别是MAKEFILES变量，其中包含了make的参数信息，如果我们执行“总控Makefile”时有make参数或是在上层Makefile中定义了这个变量，那么MAKEFILES变量将会是这些参数，并会传递到下层Makefile中，这是一个系统级的环境变量。   
+    但是make命令中的有几个参数并不往下传递，它们是“-C”,“-f”,“-h”“-o”和“-W”（有关Makefile参数的细节将在后面说明），如果你不想往下层传递参数，那么，你可以这样来：   
+          subsystem:   
+                          cd   subdir   &&   $(MAKE)   MAKEFLAGS=   
+    
+    如果你定义了环境变量MAKEFLAGS，那么你得确信其中的选项是大家都会用到的，如果其中有“-t”,“-n”,和“-q”参数，那么将会有让你意想不到的结果，或许会让你异常地恐慌。   
+    还有一个在“嵌套执行”中比较有用的参数，“-w”或是“--print-directory”会在make的过程中输出一些信息，让你看到目前的工作目录。比如，如果我们的下级make目录是“/home/hchen/gnu/make”，如果我们使用“make   -w”来执行，那么当进入该目录时，我们会看到：   
+          make:   Entering   directory   `/home/hchen/gnu/make'.   
+  而在完成下层make后离开目录时，我们会看到：   
+          make:   Leaving   directory   `/home/hchen/gnu/make'   
+    当你使用“-C”参数来指定make下层Makefile时，“-w”会被自动打开的。如果参数中有“-s”（“--slient”）或是“--no-print-directory”，那么，“-w”总是失效的。  
+
+SUBDIRS=a b c d
+
+for subdir in $SUBDIRS do
+
+cd subdir && make -w
+
+done;
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+cat   makefile
+
+make   -f   src/A/makefile 
+make   -f   src/B/makefile 
+make   -f   src/C/makefile
+
+//////////////////////
+
+SRCDIR=   a   b   c 
+All         : 
+                for   i   in   ${SRCDIR};/ 
+                do/ 
+                                echo   "Make"   $$i   :   `pwd`/$$i;/ 
+                                cd   $$i;/ 
+                                make   All;/ 
+                                echo   "";/ 
+                                cd   ..;/ 
+                done
+
+
+# 
+#   Makefile 
+# 
+SUBDIR     =   C02   C03   C04   C05   C06   C07
+
+all: 
+                @curdir=`pwd`;     / 
+                for   entry   in   $(SUBDIR);   do   / 
+                                if   test   -d   $${curdir}/$${entry};   then   / 
+                                                echo   "===>   $(DIRPRFX)$${entry}   $@";   / 
+                                                edir=$${entry};   / 
+                                                cd   $${curdir}/$${edir};   / 
+                                                $(MAKE)   $1   $@;   / 
+                                                DIRPRFX=${DIRPRFX}$${edir}/;   / 
+                                fi;   / 
+                done
+
+clean: 
+  @curdir=`pwd`;     / 
+                for   entry   in   $(SUBDIR);   do   / 
+                                if   test   -d   $${curdir}/$${entry};   then   / 
+                                                echo   "===>   $(DIRPRFX)$${entry}   $@";   / 
+                                                edir=$${entry};   / 
+                                                cd   $${curdir}/$${edir};   / 
+                                                $(MAKE)   $@;   / 
+                                                DIRPRFX=${DIRPRFX}$${edir}/;   / 
+                                fi;   / 
+                done
+
+tar:   clean 
+                @curdir=`pwd`;     / 
+                pkg=`basename   $${curdir}`;     / 
+                cd   ..;   / 
+
+-------------------------------------------------------------------------------------------------------
+
+ 
+
+##############################
+# file   Makefile
+# author  chunyv
+# date   2006-11-02
+###############################
+ 
+
+#编译指定子目录
+
+#SUBDIRS= dir1 dir2 dir3
+ 
+
+#编译所有子目录
+SUBDIRS=`ls .`
+
+define make_subdir
+ @for subdir in $(SUBDIRS) ; do /
+ ( cd $$subdir && make $1) /
+ done;
+endef
+
+
+all :
+ $(call make_subdir , all)
+ 
+install :
+ $(call make_subdir , install)
+ 
+debug:
+ $(call make_subdir , debug)
+clean:
+ $(call make_subdir , clean)
+
+--------------------------------------------------------------------------------------------------------------
+
+SUBDIRS=`ls .`
+
+define make_subdir
+ @for subdir in $(SUBDIRS) ; do /
+ ( cd $$subdir && make -w) /
+ done;
+endef
