@@ -93,6 +93,10 @@ clock_init:
 	ldr	r1, =(mMDIV_405 << 12) | (mPDIV_405 << 4) | mSDIV_405
 	str	r1, [r0]
 
+
+	mov r0, #100	
+	bl delay
+
 	mov	pc, lr
 
 
