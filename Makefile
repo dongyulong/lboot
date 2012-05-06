@@ -1,38 +1,67 @@
-#
-#	Lboot Makefile
-#
 
+MAKE 	= make -s
+TOPDIR 	= $(shell pwd)
+#TOPDIR = $(CURDIR)
 
-ARCH	?= arm
-CROSS_COMPILE	?= arm-linux-
-CC = $(CROSS_COMPILE)gcc
-AS = $(CROSS_COMPILE)as
-LD = $(CROSS_COMPILE)ld
+export	MAKE TOPDIR
+
+CROSS_COMPILE 	?= arm-linux-
+
+AS	= $(CROSS_COMPILE)as
+LD	= $(CROSS_COMPILE)ld
+CC	= $(CROSS_COMPILE)gcc
+CPP	= $(CC) -E
+AR	= $(CROSS_COMPILE)ar
+NM	= $(CROSS_COMPILE)nm
+LDR	= $(CROSS_COMPILE)ldr
+STRIP	= $(CROSS_COMPILE)strip
 OBJCOPY = $(CROSS_COMPILE)objcopy
+OBJDUMP = $(CROSS_COMPILE)objdump
 
-LBOOT_BIN = lboot.bin
-LBOOT_ELF = lboot.elf
-LBOOT_LDS = lboot.lds
+export AS LD CC CPP AR NM LDR STRIP OBJCOPY OBJDUMP
 
-SOURCE = start.S led.S
+#########################################################################
 
-OBJS = start.o led.o
+LDSCRIPT	:= $(TOPDIR)/lboot.lds
+STARTDIR	:= $(TOPDIR)/cpu
 
-all: $(LBOOT_BIN)
-	@echo  "Outputing $(LBOOT_BIN) ..."
-	@echo  "Please use ./tool/script/oflash.sh to flash image"
+OUT_BIN	:= lboot.bin
+OUT_ELF	:= lboot.elf
 
-$(LBOOT_BIN): $(LBOOT_ELF)
-	@$(OBJCOPY) -I elf32-littlearm -O binary $^ $@
+SUBDIRS := drivers/
 
-$(LBOOT_ELF): $(OBJS)
-	@$(LD)	$^ -o $@ -T$(LBOOT_LDS)
+SUBLIBS	:= $(addsuffix built-in.o,$(SUBDIRS))
 
-*.o:*.S
-	@$(CC) -c $< $@
+.PHONY: $(OUT_BIN) $(OUT_ELF) $(SUBDIRS) $(SUBLIBS) $(STARTDIR)
 
+#########################################################################
+
+all:	$(OUT_BIN)
+	@echo "Outputing lboot.bin..."
+	@echo "Building Successfully."
+
+$(OUT_BIN): $(OUT_ELF)
+	@$(OBJCOPY) -O binary $< $@
+
+$(OUT_ELF): $(STARTDIR) $(SUBDIRS)
+	@$(LD) $(SUBLIBS) -o $@ -T$(LDSCRIPT)
+
+$(STARTDIR):
+	@$(MAKE) -C $@ start
+
+$(SUBDIRS):
+	@$(MAKE) -C $@ all
+
+########################################################################
+menuconfig:
+	./tool/mconf Kconfig
+
+########################################################################
 
 .PHONY: clean
 clean:
-	@rm -f *.out $(LBOOT_BIN) $(LBOOT_ELF) $(OBJS) oflash/lboot.bin
-	
+	@for i in $(SUBDIRS);do $(MAKE) -C $$i clean;done
+	@$(MAKE) -C $(STARTDIR) clean_start
+	@rm -f $(OUT_ELF) $(OUT_BIN)
+	@echo " Remove"
+
