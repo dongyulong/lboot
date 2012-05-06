@@ -1,5 +1,4 @@
 
-obj-y := led/
-obj-y += clock/
+obj-y	:= clock.o
 
 include $(TOPDIR)/config.mk
