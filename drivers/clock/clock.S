@@ -11,12 +11,6 @@
 #define uPDIV_48	0x02 
 #define uSDIV_48	0x02 
 
-delay:
-1:	nop
-	subs r0, r0, #1
-	bne 1b
-	mov pc, lr
-
 
 .global clock_init
 clock_init:
@@ -74,8 +68,18 @@ clock_init:
 	ldr	r1, =(uMDIV_48 << 12) | (uPDIV_48 << 4) | uSDIV_48
 	str r1, [r0]
 
-	mov r0, #50	/* Needs intervals approximately 7 NOP */
-	bl delay
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+
 
 	/*
 	* Mpll = (2 * m * Fin) / (p * 2S)
@@ -92,10 +96,6 @@ clock_init:
 	ldr	r0, =MPLLCON
 	ldr	r1, =(mMDIV_405 << 12) | (mPDIV_405 << 4) | mSDIV_405
 	str	r1, [r0]
-
-
-	mov r0, #100	
-	bl delay
 
 	mov	pc, lr
 
