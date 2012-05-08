@@ -14,6 +14,9 @@
 
 .global clock_init
 clock_init:
+	
+	mov r3, lr
+
 	/*
 	* HDIVN = 0b01; PDIVN = 0b1; FCLK:HCLK:PCLK = 1:2:4
 	* HDIVN = 0b10; PDIVN = 0b1;
@@ -68,18 +71,8 @@ clock_init:
 	ldr	r1, =(uMDIV_48 << 12) | (uPDIV_48 << 4) | uSDIV_48
 	str r1, [r0]
 
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-
+	mov r0,#0x20
+	bl lboot_delay
 
 	/*
 	* Mpll = (2 * m * Fin) / (p * 2S)
@@ -97,6 +90,7 @@ clock_init:
 	ldr	r1, =(mMDIV_405 << 12) | (mPDIV_405 << 4) | mSDIV_405
 	str	r1, [r0]
 
+	mov lr, r3
 	mov	pc, lr
 
 
