@@ -1,9 +1,11 @@
 
 MAKE 	= make -s
 TOPDIR 	= $(shell pwd)
+OUTDIR  = $(strip $(TOPDIR)/out)
+OUTOBJS =
 #TOPDIR = $(CURDIR)
 
-export	MAKE TOPDIR
+export	MAKE TOPDIR OUTDIR OUTOBJS
 
 CROSS_COMPILE 	?= arm-linux-
 
@@ -30,7 +32,7 @@ OUT_ELF	:= lboot.elf
 
 SUBDIRS := drivers/
 
-SUBLIBS	:= $(addsuffix built-in.o,$(SUBDIRS))
+SUBLIBS	:= $(addsuffix built-in.o,$(OUTDIR)/$(SUBDIRS))
 
 .PHONY: $(OUT_BIN) $(OUT_ELF) $(SUBDIRS) $(SUBLIBS) $(STARTDIR)
 

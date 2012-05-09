@@ -1,20 +1,25 @@
 
 OBJS 	:= $(notdir $(obj-y))
 SUBDIRS := $(subst ./,,$(dir $(obj-y)))
-SUBLIBS	:= $(addsuffix built-in.o,$(SUBDIRS))
-
+#SUBLIBS	:= $(addsuffix built-in.o,$(SUBDIRS))
+OBJDIR  := $(OUTDIR)/$(patsubst $(TOPDIR)/%,%,$(shell pwd))
+OUTOBJS += $(if $(OBJS), $(addprefix $(OBJDIR)/, $(OBJS)),)
 #########################################################################
 
 .PHONY: all
 ifeq ($(obj-y),)
 
 all:
+	OBJDIR  := $(OUTDIR)/$(patsubst $(TOPDIR)/%,%,$(shell pwd))
+	@cd $(OBJDIR)
 	@rm -f built-in.o
 	@$(AR) rcs built-in.o
+	@cd -
 else
 
 all: $(SUBDIRS) $(OBJS)
-	$(LD) -r -o built-in.o $(OBJS) $(SUBLIBS)
+	@echo $(SUBDIRS) ######### $(OBJS) ###### $(OUTOBJS)
+	$(LD) -r -o $(OBJDIR)/built-in.o $(OBJDIR)/$(OBJS) $(OBJDIR)/$(SUBLIBS)
 
 endif
 
@@ -32,21 +37,22 @@ CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -fno-stack-protector \
 CURDIR := $(subst $(TOPDIR),,$(shell pwd))
 
 %.o:	%.S
-	@$(CC) $(CFLAGS) -c -o $@ $<
-	@echo " CC		.$(CURDIR)/$@"
+	@mkdir -p $(strip $(OBJDIR))
+	@$(CC) $(CFLAGS) -c -o $(OBJDIR)/$@ $<
+	@echo " CC		.$(CURDIR)/$@ -o $(OBJDIR)/$@"
 
 %.o:	%.s
-	@$(CC) $(CFLAGS) -c -o $@ $<
-	@echo " CC		.$(CURDIR)/$@"
+	@mkdir -p $(strip $(OBJDIR))
+	@$(CC) $(CFLAGS) -c -o $(OBJDIR)/$@ $<
+	@echo " CC		.$(CURDIR)/$@ -o $(OBJDIR)/$@"
 
 %.o:	%.c
-	@$(CC) $(CFLAGS) -c -o $@ $<
-	@echo " CC		.$(CURDIR)/$@"
+	@mkdir -p $(strip $(OBJDIR))
+	@$(CC) $(CFLAGS) -c -o $(OBJDIR)/$@ $<
+	@echo " CC		.$(CURDIR)/$@ -o $(OBJDIR)/$@"
 
 #########################################################################
 
 .PHONY: clean
 clean:
-	@for i in $(SUBDIRS);do $(MAKE) -C $$i clean;done
-	@rm -f $(OBJS) built-in.o
-
+	@rm -fr $(OUTDIR)
