@@ -1,9 +1,10 @@
 
 OBJS 	:= $(notdir $(obj-y))
 SUBDIRS := $(subst ./,,$(dir $(obj-y)))
-#SUBLIBS	:= $(addsuffix built-in.o,$(SUBDIRS))
+SUBLIBS	:= $(addsuffix built-in.o,$(SUBDIRS))
 OBJDIR  := $(OUTDIR)/$(patsubst $(TOPDIR)/%,%,$(shell pwd))
-OUTOBJS += $(if $(OBJS), $(addprefix $(OBJDIR)/, $(OBJS)),)
+OUTOBJS := $(if $(OBJS), $(addprefix $(OBJDIR)/,$(OBJS)),$(OBJS))
+OUTSUBLIBS := $(if $(SUBLIBS), $(addprefix $(OBJDIR)/,$(SUBLIBS)),$(SUBLIBS))
 #########################################################################
 
 .PHONY: all
@@ -18,9 +19,7 @@ all:
 else
 
 all: $(SUBDIRS) $(OBJS)
-	@echo $(SUBDIRS) ######### $(OBJS) ###### $(OUTOBJS)
-	$(LD) -r -o $(OBJDIR)/built-in.o $(OBJDIR)/$(OBJS) $(OBJDIR)/$(SUBLIBS)
-
+	$(LD) -r -o $(OBJDIR)/built-in.o  $(OUTOBJS) $(OUTSUBLIBS)
 endif
 
 .PHONY: $(SUBDIRS)
@@ -39,17 +38,17 @@ CURDIR := $(subst $(TOPDIR),,$(shell pwd))
 %.o:	%.S
 	@mkdir -p $(strip $(OBJDIR))
 	@$(CC) $(CFLAGS) -c -o $(OBJDIR)/$@ $<
-	@echo " CC		.$(CURDIR)/$@ -o $(OBJDIR)/$@"
+	@echo " CC	.$(CURDIR)/$@ -o $(OBJDIR)/$@"
 
 %.o:	%.s
 	@mkdir -p $(strip $(OBJDIR))
 	@$(CC) $(CFLAGS) -c -o $(OBJDIR)/$@ $<
-	@echo " CC		.$(CURDIR)/$@ -o $(OBJDIR)/$@"
+	@echo " CC	.$(CURDIR)/$@ -o $(OBJDIR)/$@"
 
 %.o:	%.c
 	@mkdir -p $(strip $(OBJDIR))
 	@$(CC) $(CFLAGS) -c -o $(OBJDIR)/$@ $<
-	@echo " CC		.$(CURDIR)/$@ -o $(OBJDIR)/$@"
+	@echo " CC	.$(CURDIR)/$@ -o $(OBJDIR)/$@"
 
 #########################################################################
 
