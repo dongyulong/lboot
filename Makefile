@@ -62,8 +62,7 @@ menuconfig:
 
 .PHONY: clean
 clean:
-	@for i in $(SUBDIRS);do $(MAKE) -C $$i clean;done
-	@$(MAKE) -C $(STARTDIR) clean_start
+	@rm -rf $(OUTDIR)
 	@rm -f $(OUT_ELF) $(OUT_BIN)
 	@echo " Remove"
 

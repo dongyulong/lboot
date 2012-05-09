@@ -8,19 +8,9 @@ OUTSUBLIBS := $(if $(SUBLIBS), $(addprefix $(OBJDIR)/,$(SUBLIBS)),$(SUBLIBS))
 #########################################################################
 
 .PHONY: all
-ifeq ($(obj-y),)
-
-all:
-	OBJDIR  := $(OUTDIR)/$(patsubst $(TOPDIR)/%,%,$(shell pwd))
-	@cd $(OBJDIR)
-	@rm -f built-in.o
-	@$(AR) rcs built-in.o
-	@cd -
-else
 
 all: $(SUBDIRS) $(OBJS)
 	$(LD) -r -o $(OBJDIR)/built-in.o  $(OUTOBJS) $(OUTSUBLIBS)
-endif
 
 .PHONY: $(SUBDIRS)
 $(SUBDIRS):
