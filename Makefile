@@ -1,7 +1,18 @@
 
 MAKE 	= make -s
 TOPDIR 	= $(shell pwd)
-OUTDIR  = $(strip $(TOPDIR)/out)
+OUTDIR  = $(TOPDIR)
+
+ifdef O
+ifeq ("$(origin O)", "command line")
+OUTDIR := $(O)
+saved-outdir := $(OUTDIR)
+$(shell [ -d $(OUTDIR) ] || mkdir -p $(OUTDIR))
+OUTDIR := $(shell cd $(OUTDIR) && pwd)
+$(if $(OUTDIR),,$(error output directory "$(saved-outdir)" does not exist))
+endif
+endif
+
 OUTOBJS =
 #TOPDIR = $(CURDIR)
 
@@ -27,8 +38,8 @@ export AS LD CC CPP AR NM LDR STRIP OBJCOPY OBJDUMP
 LDSCRIPT	:= $(TOPDIR)/lboot.lds
 STARTDIR	:= $(TOPDIR)/cpu
 
-OUT_BIN	:= lboot.bin
-OUT_ELF	:= lboot.elf
+OUT_BIN	:= $(TOPDIR)/lboot.bin
+OUT_ELF	:= $(TOPDIR)/lboot.elf
 
 SUBDIRS := drivers/
 
@@ -46,7 +57,7 @@ $(OUT_BIN): $(OUT_ELF)
 	@$(OBJCOPY) -O binary $< $@
 
 $(OUT_ELF): $(STARTDIR) $(SUBDIRS)
-	@$(LD) $(SUBLIBS) -o $@ -T$(LDSCRIPT)
+	@$(shell cd $(OUTDIR) && $(LD) $(SUBLIBS) -o $@ -T$(LDSCRIPT))
 
 $(STARTDIR):
 	@$(MAKE) -C $@ start
@@ -62,7 +73,7 @@ menuconfig:
 
 .PHONY: clean
 clean:
-	@rm -rf $(OUTDIR)
+	@$(shell for i in $(SUBDIRS);do $(MAKE) -C $$i clean;done)
+	@$(MAKE) -C $(STARTDIR) clean_start
 	@rm -f $(OUT_ELF) $(OUT_BIN)
 	@echo " Remove"
-

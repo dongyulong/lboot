@@ -11,11 +11,9 @@ OUTSUBLIBS := $(if $(SUBLIBS), $(addprefix $(OBJDIR)/,$(SUBLIBS)),$(SUBLIBS))
 ifeq ($(obj-y),)
 
 all:
-	OBJDIR  := $(OUTDIR)/$(patsubst $(TOPDIR)/%,%,$(shell pwd))
-	@cd $(OBJDIR)
 	@rm -f built-in.o
 	@$(AR) rcs built-in.o
-	@cd -
+
 else
 
 all: $(SUBDIRS) $(OBJS)
@@ -54,4 +52,4 @@ CURDIR := $(subst $(TOPDIR),,$(shell pwd))
 
 .PHONY: clean
 clean:
-	@rm -fr $(OUTDIR)
+	@rm -fr *.o

@@ -8,7 +8,7 @@ SECTIONS
 	. = ALIGN(4);
 	.text :
 	{
-		./out/cpu/start.o	(.text)
+		cpu/start.o	(.text)
 		*(.text)
 	}
 
