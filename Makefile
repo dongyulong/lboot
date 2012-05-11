@@ -38,8 +38,8 @@ export AS LD CC CPP AR NM LDR STRIP OBJCOPY OBJDUMP
 
 LDSCRIPT	:= $(TOPDIR)/lboot.lds
 
-LBOOT_BIN	:= $(TOPDIR)/lboot.bin
-LBOOT_ELF	:= $(TOPDIR)/lboot.elf
+LBOOT_BIN	:= $(OUTDIR)/lboot.bin
+LBOOT_ELF	:= $(OUTDIR)/lboot.elf
 
 SRC := cpu/
 SRC += drivers/
@@ -73,6 +73,6 @@ menuconfig:
 clean:
 #	@$(shell for i in $(SUBDIRS);do $(MAKE) -C $$i clean;done)
 #	@$(MAKE) -C $(STARTDIR) clean_start
-#	@rm -f $(OUT_ELF) $(OUT_BIN)
-	rm -rf out/
+#	@rm -f $(LBOOT_ELF) $(LBOOT_BIN)
+	@rm -rf out/
 	@echo " Remove"
