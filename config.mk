@@ -16,7 +16,7 @@ all:
 
 else
 
-all: $(SUBDIRS) $(OBJS)
+all: $(SUBDIRS) $(OUTOBJS)
 	$(LD) -r -o $(OBJDIR)/built-in.o  $(OUTOBJS) $(OUTSUBLIBS)
 endif
 
@@ -24,6 +24,7 @@ endif
 $(SUBDIRS):
 	@$(MAKE) -C $@ all	
 
+#	$(shell [ -d $(OBJDIR)/$@ ] || mkdir -p $@)
 #########################################################################
 	
 CPPFLAGS := -I$(TOPDIR)/include -nostdinc -fno-builtin -ffreestanding -pipe
@@ -31,22 +32,22 @@ CPPFLAGS := -I$(TOPDIR)/include -nostdinc -fno-builtin -ffreestanding -pipe
 CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -fno-stack-protector \
 	-march=armv4 -mabi=apcs-gnu -mno-thumb-interwork -Os
 
-CURDIR := $(subst $(TOPDIR),,$(shell pwd))
+CURDIR := $(subst $(TOPDIR)/,,$(shell pwd))
 
-%.o:	%.S
-	@mkdir -p $(strip $(OBJDIR))
-	@$(CC) $(CFLAGS) -c -o $(OBJDIR)/$@ $<
-	@echo " CC	.$(CURDIR)/$@ -o $(OBJDIR)/$@"
+$(OBJDIR)/%.o:	%.S
+	@mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) -c -o $@ $<
+	@echo " CC $(CURDIR)/$< -o $@"
 
-%.o:	%.s
-	@mkdir -p $(strip $(OBJDIR))
-	@$(CC) $(CFLAGS) -c -o $(OBJDIR)/$@ $<
-	@echo " CC	.$(CURDIR)/$@ -o $(OBJDIR)/$@"
+$(OBJDIR)/%.o:	%.s
+	@mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) -c -o $@ $<
+	@echo " CC  $(CURDIR)/$< -o $@"
 
-%.o:	%.c
-	@mkdir -p $(strip $(OBJDIR))
-	@$(CC) $(CFLAGS) -c -o $(OBJDIR)/$@ $<
-	@echo " CC	.$(CURDIR)/$@ -o $(OBJDIR)/$@"
+$(OBJDIR)/%.o:	%.c
+	@mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) -c -o $@ $<
+	@echo " CC  $(CURDIR)/$< -o $@"
 
 #########################################################################
 

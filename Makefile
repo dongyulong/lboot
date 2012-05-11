@@ -37,33 +37,30 @@ export AS LD CC CPP AR NM LDR STRIP OBJCOPY OBJDUMP
 #########################################################################
 
 LDSCRIPT	:= $(TOPDIR)/lboot.lds
-STARTDIR	:= $(TOPDIR)/cpu
 
-OUT_BIN	:= $(TOPDIR)/lboot.bin
-OUT_ELF	:= $(TOPDIR)/lboot.elf
+LBOOT_BIN	:= $(TOPDIR)/lboot.bin
+LBOOT_ELF	:= $(TOPDIR)/lboot.elf
 
-SUBDIRS := drivers/
+SRC := cpu/
+SRC += drivers/
 
-SUBLIBS	:= $(addsuffix built-in.o,$(OUTDIR)/$(SUBDIRS))
+SRCLIBS	:= $(addsuffix built-in.o,$(addprefix $(OUTDIR)/,$(SRC)))
 
-.PHONY: $(OUT_BIN) $(OUT_ELF) $(SUBDIRS) $(SUBLIBS) $(STARTDIR)
+.PHONY: $(LBOOT_BIN) $(LBOOT_ELF) $(SRC)
 
 #########################################################################
 
-all:	$(OUT_BIN)
+all:	$(LBOOT_BIN)
 	@echo "Outputing lboot.bin..."
 	@echo "Building Successfully."
 
-$(OUT_BIN): $(OUT_ELF)
+$(LBOOT_BIN): $(LBOOT_ELF)
 	@$(OBJCOPY) -O binary $< $@
 
-$(OUT_ELF): $(STARTDIR) $(SUBDIRS)
-	@$(shell cd $(OUTDIR) && $(LD) $(SUBLIBS) -o $@ -T$(LDSCRIPT))
+$(LBOOT_ELF): $(SRC)
+	@$(shell cd $(OUTDIR) && $(LD) $(SRCLIBS) -o $@ -T$(LDSCRIPT))
 
-$(STARTDIR):
-	@$(MAKE) -C $@ start
-
-$(SUBDIRS):
+$(SRC):
 	@$(MAKE) -C $@ all
 
 ########################################################################
@@ -74,7 +71,8 @@ menuconfig:
 
 .PHONY: clean
 clean:
-	@$(shell for i in $(SUBDIRS);do $(MAKE) -C $$i clean;done)
-	@$(MAKE) -C $(STARTDIR) clean_start
-	@rm -f $(OUT_ELF) $(OUT_BIN)
+#	@$(shell for i in $(SUBDIRS);do $(MAKE) -C $$i clean;done)
+#	@$(MAKE) -C $(STARTDIR) clean_start
+#	@rm -f $(OUT_ELF) $(OUT_BIN)
+	rm -rf out/
 	@echo " Remove"
