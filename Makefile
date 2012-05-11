@@ -1,7 +1,8 @@
 
 MAKE 	= make -s
 TOPDIR 	= $(shell pwd)
-OUTDIR  = $(TOPDIR)
+#OUTDIR  = $(TOPDIR)
+OUTDIR  = $(strip $(TOPDIR)/out)
 
 ifdef O
 ifeq ("$(origin O)", "command line")
