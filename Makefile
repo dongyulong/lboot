@@ -75,4 +75,4 @@ clean:
 #	@$(MAKE) -C $(STARTDIR) clean_start
 #	@rm -f $(LBOOT_ELF) $(LBOOT_BIN)
 	@rm -rf out/
-	@echo " Remove"
+	@echo "Cleaning..."
