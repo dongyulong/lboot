@@ -1,9 +1,23 @@
 
 MAKE 	= make -s
 TOPDIR 	= $(shell pwd)
+#OUTDIR  = $(TOPDIR)
+OUTDIR  = $(strip $(TOPDIR)/out)
+
+ifdef O
+ifeq ("$(origin O)", "command line")
+OUTDIR := $(O)
+saved-outdir := $(OUTDIR)
+$(shell [ -d $(OUTDIR) ] || mkdir -p $(OUTDIR))
+OUTDIR := $(shell cd $(OUTDIR) && pwd)
+$(if $(OUTDIR),,$(error output directory "$(saved-outdir)" does not exist))
+endif
+endif
+
+OUTOBJS =
 #TOPDIR = $(CURDIR)
 
-export	MAKE TOPDIR
+export	MAKE TOPDIR OUTDIR OUTOBJS
 
 CROSS_COMPILE 	?= arm-linux-
 
@@ -23,33 +37,30 @@ export AS LD CC CPP AR NM LDR STRIP OBJCOPY OBJDUMP
 #########################################################################
 
 LDSCRIPT	:= $(TOPDIR)/lboot.lds
-STARTDIR	:= $(TOPDIR)/cpu
 
-OUT_BIN	:= lboot.bin
-OUT_ELF	:= lboot.elf
+LBOOT_BIN	:= $(OUTDIR)/lboot.bin
+LBOOT_ELF	:= $(OUTDIR)/lboot.elf
 
-SUBDIRS := drivers/
+SRC := cpu/
+SRC += drivers/
 
-SUBLIBS	:= $(addsuffix built-in.o,$(SUBDIRS))
+SRCLIBS	:= $(addsuffix built-in.o,$(addprefix $(OUTDIR)/,$(SRC)))
 
-.PHONY: $(OUT_BIN) $(OUT_ELF) $(SUBDIRS) $(SUBLIBS) $(STARTDIR)
+.PHONY: $(LBOOT_BIN) $(LBOOT_ELF) $(SRC)
 
 #########################################################################
 
-all:	$(OUT_BIN)
+all:	$(LBOOT_BIN)
 	@echo "Outputing lboot.bin..."
 	@echo "Building Successfully."
 
-$(OUT_BIN): $(OUT_ELF)
+$(LBOOT_BIN): $(LBOOT_ELF)
 	@$(OBJCOPY) -O binary $< $@
 
-$(OUT_ELF): $(STARTDIR) $(SUBDIRS)
-	@$(LD) $(SUBLIBS) -o $@ -T$(LDSCRIPT)
+$(LBOOT_ELF): $(SRC)
+	@$(shell cd $(OUTDIR) && $(LD) $(SRCLIBS) -o $@ -T$(LDSCRIPT))
 
-$(STARTDIR):
-	@$(MAKE) -C $@ start
-
-$(SUBDIRS):
+$(SRC):
 	@$(MAKE) -C $@ all
 
 ########################################################################
@@ -60,8 +71,8 @@ menuconfig:
 
 .PHONY: clean
 clean:
-	@for i in $(SUBDIRS);do $(MAKE) -C $$i clean;done
-	@$(MAKE) -C $(STARTDIR) clean_start
-	@rm -f $(OUT_ELF) $(OUT_BIN)
+#	@$(shell for i in $(SUBDIRS);do $(MAKE) -C $$i clean;done)
+#	@$(MAKE) -C $(STARTDIR) clean_start
+#	@rm -f $(LBOOT_ELF) $(LBOOT_BIN)
+	@rm -rf out/
 	@echo " Remove"
-
