@@ -36,17 +36,25 @@ REGDATA:
 	.word   0x2211d110	@BWSCON		/* Bank6/7 not using UB/LB; WAIT disable; 
 									 * data bus width is 32-bit.
 									 */
-	.word   0x00000700	@BACKCON0
+	.word   0x00000700	@BACKCON0	/* Bank0~5 control registers are all using 
+									 * default value
+									 */
 	.word   0x00000700	@BACKCON1
 	.word   0x00000700	@BACKCON2
 	.word   0x00000700	@BACKCON3
 	.word   0x00000700	@BACKCON4
 	.word   0x00000700	@BACKCON5
-	.word   0x00018005	@BACKCON6
+	.word   0x00018005	@BACKCON6	/* Bank6~7 are all SDRAM, clume address lines are 9.
+									 */
 	.word   0x00018005	@BACKCON7
 	.word   0x00ac04f5	@REFRESH   /* SDRAM Refresh Enable;
 									* SDRAM Refresh Mode --> CBR/Auto Refresh
+									* SDRAM refresh count value.
 									* 
+									* Refresh period = (2^11-refresh_count+1)/HCLK
+									* If refresh period is 7.8 us and HCLK is 100MHz,
+									* the refresh count is as follows:
+									* Refresh count = 2^11 + 1 - 100x7.8 = 1269
 									*
 									*/
 	.word   0x000000b1	@BANKSIZE  /* Enable burst operation;
@@ -73,6 +81,6 @@ REGDATA:
 									* but only for a limited period of time and only under 
 									* special conditions.
 									*/
-	.word   0x00000030	@MRSRB6
+	.word   0x00000030	@MRSRB6	   /*  SDRAM MODE REGISTER SET REGISTER (MRSR) */
 	.word	0x00000030	@MRSRB7
 
