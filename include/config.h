@@ -1,0 +1,5 @@
+
+
+#define S3C2440_UPLOOKING
+
+
