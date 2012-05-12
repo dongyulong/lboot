@@ -101,6 +101,8 @@ _reset:
 	ldr	r0, =INTMSK
 	str	r1, [r0]
 
+	bl memory_init
+
 	bl led_on /* light led refer Documents/led.txt */
 
 

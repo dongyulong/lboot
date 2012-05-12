@@ -16,8 +16,7 @@ memory_init:
 	ldr     r0, =REGDATA
 	ldr	r1, =0x33f80000
 	sub	r0, r0, r1
-#define MEMCTL_BASE 0x48000000
-	ldr	r1, =MEMCTL_BASE
+	ldr	r1, =0x48000000		/* MEMCTL_BASE */
 	add     r2, r0, #13*4
 0:
 	ldr     r3, [r0], #4
