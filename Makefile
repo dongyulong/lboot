@@ -55,7 +55,6 @@ all:	$(LBOOT_BIN)
 	@echo "Building Successfully."
 
 $(LBOOT_BIN): $(LBOOT_ELF)
-	@$(NM) -s $(LBOOT_ELF) > $(OUTDIR)/System.map
 	@$(OBJCOPY) -O binary $< $@
 
 $(LBOOT_ELF): $(SRC)
