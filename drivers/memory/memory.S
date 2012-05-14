@@ -46,7 +46,7 @@ REGDATA:
 	.word   0x00018005	@BACKCON6	/* Bank6~7 are all SDRAM, clume address lines are 9.
 									 */
 	.word   0x00018005	@BACKCON7
-	.word   0x00ac04f5	@REFRESH   /* SDRAM Refresh Enable;
+	.word   0x00ac04eb	@REFRESH   /* SDRAM Refresh Enable;
 									* SDRAM Refresh Mode --> CBR/Auto Refresh
 									* SDRAM refresh count value.
 									* 
@@ -54,7 +54,7 @@ REGDATA:
 									* If refresh period is 7.8 us and HCLK is 100MHz,
 									* the refresh count is as follows:
 									* Refresh count = 2^11 + 1 - 100x7.8 = 1269
-									*
+									* In our case, FCLK=405M, HCLK=101.25M
 									*/
 	.word   0x000000b1	@BANKSIZE  /* Enable burst operation;
 									* SDRAM power down mode enable;
