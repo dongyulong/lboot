@@ -1,4 +1,3 @@
-
 #include <config.h>
 #include <reg.h>
 #include <uart.h>
@@ -7,6 +6,7 @@
 static void send_char(char ch);
 static char receive_char();
 
+struct s3c2440_uart uart;
 
 void uart_init()
 {
