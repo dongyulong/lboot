@@ -23,10 +23,10 @@
 #define GPB6	(1 << 6)
 #define GPB7	(1 << 7)
 #define GPB8	(1 << 8)
-#define LED1	GPE5
-#define LED2	GPE6
-#define LED3	GPE7
-#define LED4	GPE8
+#define LED1	GPB5
+#define LED2	GPB6
+#define LED3	GPB7
+#define LED4	GPB8
 #define LEDS	(GPB5 | GPB6 | GPB7 | GPB8)
 #endif
 
