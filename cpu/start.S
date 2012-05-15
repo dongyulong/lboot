@@ -124,6 +124,11 @@ stack_setup:		/* Set up heap and stack */
 
 	b .
 
+	ldr sp, =0x4096
+	bl main
+
+	b .
+
 
 
 
