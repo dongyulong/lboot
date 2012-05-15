@@ -4,6 +4,10 @@
  *
  */
 
+
+#include <config.h>
+
+
 /*
  *	b _reset						;reset exception : 0x00000000
  *	b _undefined_instruction		;undefined instruction : 0x00000004
@@ -14,9 +18,6 @@
  *	b _extern_irq					;external interrupt : 0x00000018
  *	b _fast_irq						;fast interrupt : 0x0000001C
  */
-
-
-
 	.text
 .global _start
 _start:
@@ -43,6 +44,9 @@ _extern_irq:
 	.word __extern_irq
 _fast_irq:
 	.word __fast_irq
+
+_TEXT_BASE:
+	.word TEXT_BASE
 
 	.balignl 16,0xdeadbeef
 
@@ -101,11 +105,22 @@ _reset:
 	ldr	r0, =INTMSK
 	str	r1, [r0]
 
-	bl clock_init
-	bl memory_init
+	bl clock_init	/* Clock initialize */
 
-	bl led_on /* light led refer Documents/led.txt */
+	bl memory_init	/* Memory initialize */
 
+stack_setup:		/* Set up heap and stack */
+	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
+	sub	r0, r0, #CFG_MALLOC_LEN	/* malloc area */
+	sub	r0, r0, #CFG_GBL_DATA_SIZE /* gbl information  */
+#ifdef CONFIG_USE_IRQ
+	sub r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
+#endif 
+	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
+
+
+
+	bl led_on	/* light led refer Documents/led.txt */
 
 
 
