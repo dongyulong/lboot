@@ -1,6 +1,6 @@
 #ifndef __UART_H
 #define __UART_H
-
+#if 0
 /* UART reg struct*/
 struct s3c2440_uart {
     u32   ULCON;
@@ -23,8 +23,10 @@ struct s3c2440_uart {
     u32    res2[3];
 #endif
     u32   UBRDIV;
-} __attribute__((__packed__));
+}; /*__attribute__((__packed__));*/
+#endif
 
-void uart_init();
+void uart_init(void);
+void printf(char *str);
 
 #endif

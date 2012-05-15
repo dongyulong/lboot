@@ -2,10 +2,7 @@
 #ifndef __STDIO_H
 #define __STDIO_H
 
-void putchar(char ch);
-char getchar();
-
-void printf();
+void printf(char *str);
 /*void scanf();*/
 
 #endif

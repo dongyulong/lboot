@@ -3,12 +3,11 @@
 #include <uart.h>
 
 
-static void send_char(char ch);
-static char receive_char();
+static void send_char(char *pch);
+static char receive_char(void);
 
-struct s3c2440_uart uart;
-
-void uart_init()
+//struct s3c2440_uart uart;
+void uart_init(void)
 {
 	GPHCON |= 0xa0;  /*GPH2 is set to TXD0, GPH3 is set to RXD0*/
 	GPHUP = 0x0c;	/*GPH2 and GPH3 are set to pull up*/
@@ -34,7 +33,7 @@ void uart_init()
 
 }
 
-void prinf(char *str)
+void printf(char *str)
 {
 	while (*str) {
 			send_char(str);
@@ -47,7 +46,7 @@ void putchar(char ch)
 	send_char(&ch);
 }
 
-char getchar()
+char getchar(void)
 {
 	return receive_char();
 }
