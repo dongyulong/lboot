@@ -17,6 +17,19 @@ void uart_init()
 	UCON0 = 0x05;  /*polling mode*/
 	UFCON0 = 0x00; /*do not use FIFO function*/
 	UMCON0 = 0x00; /*do not use UART MODEM*/
+	/*
+	*PCLK=405M/8=50625KHZ=UART clock
+	*UBRDIVn = (int) (UART clock / (buad rate * 16 ) ) - 1
+	*UBRDIVn=(int)(50625KHZ/(115200*16))-1=(int)27.4658203125-1=26
+	*tUPCLK=(26+1)*16*1Frame/50625KHZ=432*1Frame/50625KHZ
+	*tUEXACT=1Frame/115200
+	*UART error=(tUPCLK-tUEXACT)/tUEXACT*100%
+	*	=(tUPCLK/tUEXACT -1)*100%
+	*	=432/(115200*50625K)*100%
+	*	=432/(5832000M)*100%
+	*	=0.0074%/M < 1.87%
+	*
+	*/
 	UBRDIV0 = 26;  /*baud rate is 115200*/
 
 }
