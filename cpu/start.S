@@ -106,6 +106,11 @@ _reset:
 
 	bl led_on /* light led refer Documents/led.txt */
 
+	ldr sp, =0x4096
+	bl main
+
+	b .
+
 
 
 
