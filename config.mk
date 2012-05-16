@@ -36,17 +36,17 @@ CURDIR := $(subst $(TOPDIR)/,,$(shell pwd))
 
 $(OBJDIR)/%.o:	%.S
 	@mkdir -p $(OBJDIR)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 	@echo " CC  $(CURDIR)/$< -o $(subst $(TOPDIR)/,,$@)"
 
 $(OBJDIR)/%.o:	%.s
 	@mkdir -p $(OBJDIR)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 	@echo " CC  $(CURDIR)/$< -o $(subst $(TOPDIR)/,,$@)"
 
 $(OBJDIR)/%.o:	%.c
 	@mkdir -p $(OBJDIR)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 	@echo " CC  $(CURDIR)/$< -o $(subst $(TOPDIR)/,,$@)"
 
 #########################################################################

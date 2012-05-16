@@ -28,4 +28,9 @@
 #define LINUX_KERNEL			0x30008000	/* linux kernel start address */
 #define RAMDISK					0x30800000	/* file system start address */
 
+/*
+*print buffer definition
+*/
+#define CFG_PB_SIZE 256
+
 #endif /* __LBOOT_CONFIG_ */
