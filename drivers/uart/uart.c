@@ -1,11 +1,10 @@
-#include <stdio.h>
 #include <config.h>
 #include <reg.h>
 #include <uart.h>
 
 
-void uart_send_char(const char *pch);
-char uart_receive_char(void);
+static void send_char(char *pch);
+static char receive_char(void);
 
 //struct s3c2440_uart uart;
 void uart_init(void)
@@ -34,26 +33,31 @@ void uart_init(void)
 
 }
 
-void uart_send_string(const char *str)
+void printf(char *str)
 {
 	while (*str) {
-			uart_send_char(str);
+			send_char(str);
 			str++;
 	}
 }
 
-//lboot_print = uart_send_string; /*lboot_print is defined in print.c, and it is a function pointer.*/
+void putchar(char ch)
+{
+	send_char(&ch);
+}
 
+char getchar(void)
+{
+	return receive_char();
+}
 
-void uart_send_char(const char *pch)
+static void send_char(char *pch)
 {
 	while ( !((UTRSTAT0 >> 1) & 0x1)) ;
 	UTXH0 = *pch;
 }
 
-//lboot_putchar = uart_send_char; /*lboot_putchar is defined in print.c, and it is a function porinter*/
-
-char uart_receive_char(void)
+static char receive_char()
 {
 	unsigned long ch;
 
@@ -62,6 +66,3 @@ char uart_receive_char(void)
 
 	return (char)ch; 
 }
-
-//lboot_getchar = uart_receive_char; /*lboot_putchar is defined in print.c, and it is a function porinter*/
-

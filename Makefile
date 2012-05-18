@@ -44,7 +44,6 @@ LBOOT_ELF	:= $(OUTDIR)/lboot.elf
 SRC := cpu/
 SRC += drivers/
 SRC += lboot/
-SRC += lib/
 
 SRCLIBS	:= $(addsuffix built-in.o,$(addprefix $(OUTDIR)/,$(SRC)))
 
