@@ -1,6 +1,6 @@
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __REG_H
+#define __REG_H
 
 
 #define GPHCON 		(*(volatile unsigned long *)0x56000070)
@@ -18,4 +18,4 @@
 #define URXH0		(*(volatile unsigned long *)0x50000024)
 #define UBRDIV0		(*(volatile unsigned long *)0x50000028)
 
-#endif	/* __CONFIG_H */
+#endif	/* __REG_H */
