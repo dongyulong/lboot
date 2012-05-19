@@ -27,6 +27,7 @@ struct s3c2440_uart {
 #endif
 
 void uart_init(void);
-void printf(char *str);
+int send_char(const int ch);
+int receive_char(void);
 
 #endif

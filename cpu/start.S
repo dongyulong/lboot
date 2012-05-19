@@ -118,21 +118,11 @@ stack_setup:		/* Set up heap and stack */
 #endif 
 	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
 
-	bl main
+	bl lboot_main
 
 	bl led_on	/* light led refer Documents/led.txt */
 
 	b .
-
-	ldr sp, =0x4096
-	bl main
-
-	b .
-
-
-
-
-
 
 
 __undefined_instruction:
