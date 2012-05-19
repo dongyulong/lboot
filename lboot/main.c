@@ -2,19 +2,17 @@
 
 int lboot_main(void)
 {
-	char s[1000];
-	char *p;
+	char ch;
 
 	uart_init();
 
 	while(1){
-//		puts("lboot...\n");
-		p = gets(s);
-			
-		puts(p);
+		ch = getchar();
+		if(ch == '\r')
+			putchar('\n');
+		putchar(ch);
 
 	}
-	printf("uart is initialized completely!!\n");
 
 	return 0;
 }

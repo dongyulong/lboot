@@ -5,8 +5,8 @@
 //struct s3c2440_uart uart;
 void uart_init(void)
 {
-	GPHCON |= 0xa0;  /*GPH2 is set to TXD0, GPH3 is set to RXD0*/
-	GPHUP = 0xC;	/*GPH2 and GPH3 are set to pull up*/
+	GPHCON = 0xa0;  /*GPH2 is set to TXD0, GPH3 is set to RXD0*/
+	GPHUP = 0xc;	/*GPH2 and GPH3 are set to pull up*/
 
 	ULCON0 = 0x03; /* 8-bits data*/
 	UCON0 = 0x05;  /*polling mode*/
@@ -25,7 +25,7 @@ void uart_init(void)
 	*	=0.0074%/M < 1.87%
 	*
 	*/
-	UBRDIV0 = 21;  /*baud rate is 115200*/
+	UBRDIV0 = 26;  /*baud rate is 115200*/
 
 }
 
@@ -40,10 +40,7 @@ int send_char(const int ch)
 
 int receive_char(void)
 {
-	unsigned long ch;
+	while (!(UTRSTAT0 & 0x1));
 
-	while ( !(UTRSTAT0 & 0x1)) ;
-	ch = URXH0;
-
-	return ch; 
+	return URXH0 & 0xff;
 }

@@ -107,7 +107,7 @@ _reset:
 
 	bl clock_init	/* Clock initialize */
 
-	bl memory_init	/* Memory initialize */
+/*	bl memory_init*/	/* Memory initialize */
 
 stack_setup:		/* Set up heap and stack */
 	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */

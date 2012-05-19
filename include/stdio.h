@@ -6,8 +6,8 @@
 #define NULL 0
 
 int printf(const char *format, ...);
-char *gets(char *str);
-int puts(const char *str);
+char *gets(char *s);
+int puts(const char *s);
 int putchar(int ch);
 int getchar(void);
 

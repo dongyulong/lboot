@@ -5,43 +5,31 @@ int puts(const char *s)
 	int n = 0;
 
 	if(!s)
-		return NULL;
+		return -1;
 
 	while(*s){
 		send_char(*s);
+		s++;
 		n++;
 	}
 
+	send_char('\n');
 	return n;
 }
 
 char* gets(char *s)
 {
-	int c;
+	char c;
 	int n = 0;
-	while((c = receive_char()) != '\n'){
-		if(c == -1){
-			*s = 0;
-			return NULL; 
-		}   
+
+	do{
+		c = receive_char();
 		s[n++] = c;
-	}   
+	}while( c != '\n'); 
+
 	s[n] = '\0';
+
 	return s;
-
-	/*
-	char *p = str;
-
-	if(!p)
-		return NULL;
-	
-	while
-	*p = receive_char();
-	p++;
-
-	
-	return str;
-	*/
 }
 
 int putchar(int ch)
