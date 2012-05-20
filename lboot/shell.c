@@ -28,7 +28,8 @@ int shell(void)
 
 static void promption(void)
 {
-	printf("["CFG_USER"@"CFG_HOST_NAME"] ");
+	printf("["CFG_USER"] ");
+
 }
 
 

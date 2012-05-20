@@ -7,7 +7,7 @@
 #define GPHUP 		(*(volatile unsigned long *)0x56000078)
 
 
-
+#if 0
 /************** UART 0**************/
 #define ULCON0		(*(volatile unsigned long *)0x50000000)
 #define UCON0		(*(volatile unsigned long *)0x50000004)
@@ -17,5 +17,5 @@
 #define UTXH0 		(*(volatile unsigned long *)0x50000020)
 #define URXH0		(*(volatile unsigned long *)0x50000024)
 #define UBRDIV0		(*(volatile unsigned long *)0x50000028)
-
+#endif
 #endif	/* __REG_H */

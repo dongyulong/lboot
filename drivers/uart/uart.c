@@ -1,17 +1,20 @@
 #include <config.h>
+#include <regstruct.h>
 #include <reg.h>
 #include <uart.h>
 
-//struct s3c2440_uart uart;
+
 void uart_init(void)
 {
+
 	GPHCON = 0xa0;  /*GPH2 is set to TXD0, GPH3 is set to RXD0*/
 	GPHUP = 0xc;	/*GPH2 and GPH3 are set to pull up*/
+	struct uart *uart = get_uart_base(CFG_UART_NR);
 
-	ULCON0 = 0x03; /* 8-bits data*/
-	UCON0 = 0x05;  /*polling mode*/
-	UFCON0 = 0x00; /*do not use FIFO function*/
-	UMCON0 = 0x00; /*do not use UART MODEM*/
+	uart->ULCON = 0x03; /* 8-bits data*/
+	uart->UCON = 0x05;  /*polling mode*/
+	uart->UFCON = 0x00; /*do not use FIFO function*/
+	uart->UMCON = 0x00; /*do not use UART MODEM*/
 	/*
 	*PCLK=405M/8=50625KHZ=UART clock
 	*UBRDIVn = (int) (UART clock / (buad rate * 16 ) ) - 1
@@ -25,14 +28,16 @@ void uart_init(void)
 	*	=0.0074%/M < 1.87%
 	*
 	*/
-	UBRDIV0 = 26;  /*baud rate is 115200*/
+	uart->UBRDIV = 26;  /*baud rate is 115200*/
 
 }
 
 int send_char(const int ch)
 {
-	while (!(UTRSTAT0 & 0x2));
-	UTXH0 = ch;
+	struct uart *uart = get_uart_base(CFG_UART_NR);
+
+	while (!(uart->UTRSTAT & 0x2));
+	uart->UTXH = ch;
 	if(ch == '\n')
 		send_char('\r');
 	return ch;
@@ -40,7 +45,9 @@ int send_char(const int ch)
 
 int receive_char(void)
 {
-	while (!(UTRSTAT0 & 0x1));
+	struct uart *uart = get_uart_base(CFG_UART_NR);
 
-	return URXH0 & 0xff;
+	while (!(uart->UTRSTAT & 0x1));
+
+	return uart->URXH & 0xff;
 }
