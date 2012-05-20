@@ -1,20 +1,22 @@
 #include <stdio.h>
+#include <stdarg.h>
+
 
 int puts(const char *s)
 {
-	int n = 0;
+	int count = 0;
 
 	if(!s)
-		return -1;
+		return 0;
 
-	while(*s){
-		send_char(*s);
+	while(*s != '\0'){
+		putchar(*s);
 		s++;
-		n++;
+		count++;
 	}
 
-	send_char('\n');
-	return n;
+	putchar('\n');
+	return count;
 }
 
 char* gets(char *s)
@@ -42,12 +44,25 @@ int getchar(void)
 	return receive_char();
 }
 
+
+extern int vsprintf(char *buf, const char *fmt, va_list args);
+#define CONFIG_SYS_BUFFER_SIZE 4096
 int printf(const char *format, ...)
 {
-//	while (*str) {
-//			send_char(str);
-//			str++;
-//	}
-	return 0;
+	unsigned long count;
+	va_list args;
+	char printbuffer[CONFIG_SYS_BUFFER_SIZE];
+	char *s = printbuffer;
+
+	va_start(args, format);
+
+	count = vsprintf(printbuffer, format, args);
+
+	va_end(args);
+
+	while(*s)
+		send_char(*s++);
+
+	return count;
 }
 

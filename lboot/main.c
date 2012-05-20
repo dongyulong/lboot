@@ -11,7 +11,7 @@ int lboot_main(void)
 		if(ch == '\r')
 			putchar('\n');
 		putchar(ch);
-
+		printf("lboot ... \n");
 	}
 
 	return 0;

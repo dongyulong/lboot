@@ -109,6 +109,18 @@ _reset:
 
 /*	bl memory_init*/	/* Memory initialize */
 
+	mov r0, #0 
+	mcr p15, 0, r0, c7, c7, 0	@ flush v3/v4 cache 
+	mcr p15, 0, r0, c8, c7, 0	@ flush v4 TLB 
+
+	mrc p15, 0, r0, c1, c0, 0
+	bic r0, r0, #0x00002300		@ clear bits 13, 9:8 (--V- --RS)
+	bic r0, r0, #0x00000087		@ clear bits 7, 2:0 (B--- -CAM)
+	orr r0, r0, #0x00000002		@ set bit 2 (A) Align
+	orr r0, r0, #0x00001000		@ set bit 12 (I) I-Cache
+	mcr p15, 0, r0, c1, c0, 0
+
+
 stack_setup:		/* Set up heap and stack */
 	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
 	sub	r0, r0, #CFG_MALLOC_LEN	/* malloc area */
