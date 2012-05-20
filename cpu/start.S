@@ -125,8 +125,8 @@ stack_setup:		/* Set up heap and stack */
 	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
 	sub	r0, r0, #CFG_MALLOC_LEN	/* malloc area */
 	sub	r0, r0, #CFG_GBL_DATA_SIZE /* gbl information  */
-#ifdef CONFIG_USE_IRQ
-	sub r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
+#ifdef CFG_USE_IRQ
+	sub r0, r0, #(CFG_STACKSIZE_IRQ+CFG_STACKSIZE_FIQ)
 #endif 
 	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
 

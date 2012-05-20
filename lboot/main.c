@@ -1,18 +1,15 @@
 #include <stdio.h>
 
+extern void shell(void);
+
+
 int lboot_main(void)
 {
-	char ch;
-
 	uart_init();
 
-	while(1){
-		ch = getchar();
-		if(ch == '\r')
-			putchar('\n');
-		putchar(ch);
-		printf("lboot ... \n");
-	}
+	putchar('\n');
+
+	shell();
 
 	return 0;
 }
