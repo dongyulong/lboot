@@ -26,8 +26,7 @@
 #define RAMDISK					0x30800000	/* file system start address */
 
 /* Lboot shell */
-#define CFG_HOST_NAME "S3C2440A"
-#define CFG_USER "lboot"
+#define CFG_PROMPTION "[lboot]# "
 #define CFG_SHELL_BUFFER_SIZE 4096
 
 /* Uart config*/

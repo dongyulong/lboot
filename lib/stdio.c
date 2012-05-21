@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-
-int puts(const char *s)
+int console_puts(const char *s)
 {
 	int count = 0;
 
@@ -15,7 +14,17 @@ int puts(const char *s)
 		count++;
 	}
 
+	return count;
+}
+
+
+int puts(const char *s)
+{
+	int count;
+
+	count = console_puts(s);
 	putchar('\n');
+
 	return count;
 }
 

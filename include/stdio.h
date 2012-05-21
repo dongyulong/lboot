@@ -7,6 +7,7 @@
 
 int printf(const char *format, ...);
 char *gets(char *s);
+int console_puts(const char *s);
 int puts(const char *s);
 int putchar(int ch);
 int getchar(void);
