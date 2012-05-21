@@ -18,4 +18,14 @@
 #define URXH0		(*(volatile unsigned long *)0x50000024)
 #define UBRDIV0		(*(volatile unsigned long *)0x50000028)
 #endif
+
+/************* nand ****************/
+#define NFCONF		(*(volatile unsigned long *)0x4e000000)
+#define NFCONT		(*(volatile unsigned long *)0x4e000004)
+#define NFCMD		(*(volatile unsigned long *)0x4e000008)
+#define NFADDR		(*(volatile unsigned long *)0x4e00000c)
+#define NFDATA		(*(volatile unsigned long *)0x4e000010)
+#define NFSTAT		(*(volatile unsigned long *)0x4e000020)
+
+
 #endif	/* __REG_H */

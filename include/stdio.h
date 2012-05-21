@@ -1,6 +1,7 @@
 #ifndef __STDIO_H
 #define __STDIO_H
 
+#include <ctype.h>
 #include <uart.h>
 
 #define NULL 0
