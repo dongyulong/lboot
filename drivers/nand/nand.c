@@ -64,18 +64,18 @@ void nand_read_data(unsigned char *buf, unsigned long start_addr, int size)
 	unsigned long i;
 	int j;
 
-	if ((start_addr & NAND_PAGE_MASK) || (size & NAND_PAGE_MASK))
-		return;
-
 	nand_select_chip();
 	
 	i = start_addr;
 	while (i < (start_addr + size)){
-		nand_cmd(0x00);
+		if (i & (0x01 << 8))
+				nand_cmd(0x01);
+		else
+				nand_cmd(0x00);
 		nand_write_addr_reg(i);
 		nand_wait_cmd_complete();
 
-		for(j = 0; j < NAND_SECTOR_SIZE; j++, i++){
+		for(j = 0; (j < (NAND_SECTOR_SIZE - (i & NAND_SECTOR_MASK))) && (i < (start_addr + size)); j++, i++){
 			*buf = nand_read_data_reg();
 			buf++;
 		}
