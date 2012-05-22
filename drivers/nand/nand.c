@@ -40,6 +40,7 @@ static void nand_reset(void)
 {
 	nand_select_chip();
 	nand_cmd(0xff);
+	nand_wait_cmd_complete();
 	nand_deselect_chip();	
 }
 
@@ -63,7 +64,7 @@ void nand_read_data(unsigned char *buf, unsigned long start_addr, int size)
 	unsigned long i;
 	int j;
 
-	if ((start_addr & NAND_BLOCK_MASK) || (size & NAND_BLOCK_MASK))
+	if ((start_addr & NAND_PAGE_MASK) || (size & NAND_PAGE_MASK))
 		return;
 
 	nand_select_chip();
