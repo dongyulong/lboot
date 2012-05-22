@@ -59,6 +59,10 @@ void nand_init(void)
 	nand_reset();
 }
 
+/*
+ *nand_read_data() is only used by reading data-field.
+ *The cmd of reading oob-field is 50h.
+ */
 void nand_read_data(unsigned char *buf, unsigned long start_addr, int size)
 {
 	unsigned long i;
