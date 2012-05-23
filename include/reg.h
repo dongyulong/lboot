@@ -19,6 +19,7 @@
 #define UBRDIV0		(*(volatile unsigned long *)0x50000028)
 #endif
 
+#if 0
 /************* nand ****************/
 #define NFCONF		(*(volatile unsigned long *)0x4e000000)
 #define NFCONT		(*(volatile unsigned long *)0x4e000004)
@@ -26,6 +27,6 @@
 #define NFADDR		(*(volatile unsigned long *)0x4e00000c)
 #define NFDATA		(*(volatile unsigned long *)0x4e000010)
 #define NFSTAT		(*(volatile unsigned long *)0x4e000020)
-
+#endif
 
 #endif	/* __REG_H */

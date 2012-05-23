@@ -1,39 +1,41 @@
 #include <stdio.h>
 #include <reg.h>
+#include <regstruct.h>
 #include <nand.h>
 
+static struct nand *nand;
 
 static inline void nand_select_chip(void)
 {
-	NFCONT &= ~(0x01 << 1);
+	nand->NFCONT &= ~(0x01 << 1);
 }
 
 static inline void nand_deselect_chip(void)
 {
-	NFCONT |= (0x01 << 1);
+	nand->NFCONT |= (0x01 << 1);
 }
 
 static inline void nand_cmd(unsigned long cmd)
 {
-	NFCMD = cmd;
+	nand->NFCMD = cmd;
 }
 
 static inline void nand_write_addr_reg(unsigned long addr)
 {
-	NFADDR = addr & 0xff;
-	NFADDR = (addr >> 9) & 0xff;
-	NFADDR = (addr >> 17) & 0xff;
-	NFADDR = (addr >> 25) & 0xff;
+	nand->NFADDR = addr & 0xff;
+	nand->NFADDR = (addr >> 9) & 0xff;
+	nand->NFADDR = (addr >> 17) & 0xff;
+	nand->NFADDR = (addr >> 25) & 0xff;
 }
 
 static inline char nand_read_data_reg(void)
 {
-	return (NFDATA & 0xff);
+	return (nand->NFDATA & 0xff);
 }
 
 static inline void nand_wait_cmd_complete(void)
 {
-	while (!(NFSTAT & 0x01)) ;
+	while (!(nand->NFSTAT & 0x01)) ;
 }
 
 static void nand_reset(void)
@@ -52,9 +54,9 @@ void nand_init(void)
 	 *WE Pulse Width >= 25ns,
 	 *so TACLS=1, TWRPH0=3, TWRPH1=1	
 	*/	
-	NFCONF = (0x01 << 12) | (0x03 << 8) | (0x01 << 4);
+	nand->NFCONF = (0x01 << 12) | (0x03 << 8) | (0x01 << 4);
 	/*Enable nand flash controller, initialise ECC, and deselect chip*/
-	NFCONT = (0x01 << 4 ) | (0x01 << 1) | (0x01 << 0);
+	nand->NFCONT = (0x01 << 4 ) | (0x01 << 1) | (0x01 << 0);
 	
 	nand_reset();
 }
@@ -67,6 +69,8 @@ void nand_read_data(unsigned char *buf, unsigned long start_addr, int size)
 {
 	unsigned long i;
 	int j;
+	
+	nand = get_nand_base();
 
 	nand_select_chip();
 	
