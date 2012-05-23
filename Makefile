@@ -37,6 +37,8 @@ export AS LD CC CPP AR NM LDR STRIP OBJCOPY OBJDUMP
 #########################################################################
 
 LDSCRIPT	:= $(TOPDIR)/lboot.lds
+TEXT_BASE	:= 0x33f80000
+LDFLAGS 	:= -Bstatic -T $(LDSCRIPT) -Ttext $(TEXT_BASE)
 
 LBOOT_BIN	:= $(OUTDIR)/lboot.bin
 LBOOT_ELF	:= $(OUTDIR)/lboot.elf
@@ -60,7 +62,7 @@ $(LBOOT_BIN): $(LBOOT_ELF)
 	@$(OBJCOPY) -O binary $< $@
 
 $(LBOOT_ELF): $(SRC)
-	@$(shell cd $(OUTDIR) && $(LD) $(SRCLIBS) -o $@ -T$(LDSCRIPT))
+	@$(shell cd $(OUTDIR) && $(LD) $(SRCLIBS) -o $@ $(LDFLAGS))
 
 $(SRC):
 	@$(MAKE) -C $@ all
